@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>November 2026 To-Do List</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#182238;--muted:#718096;--line:#e7ecf3;--blue:#315efb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial, sans-serif;color:var(--ink)}
+main{max-width:760px;margin:38px auto;padding:0 16px 48px}
+header{background:linear-gradient(120deg,#172554,#315efb);color:#fff;padding:28px;border-radius:20px;margin-bottom:20px}
+h1{margin:0 0 7px;font-size:30px}
+header p{margin:0;color:#dce6ff}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 8px 25px #1a2a4c0d}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+h2{font-size:18px;margin:0}
+button{border:1px solid var(--line);background:#f7f9ff;border-radius:9px;padding:9px 13px;cursor:pointer;font-size:14px}
+.day{padding:14px 0;border-bottom:1px solid var(--line)}
+.day:last-child{border-bottom:0}
+.date{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.task{padding:7px 0 7px 14px;position:relative;line-height:1.5;overflow-wrap:anywhere}
+.task:before{content:"•";position:absolute;left:0;color:var(--blue);font-weight:bold}
+.message{font-size:13px;color:var(--muted);margin-top:14px}
+.error{color:#c0392b}
+.empty{text-align:center;color:var(--muted);padding:28px 8px}
+@media(max-width:520px){main{margin:18px auto}header{padding:22px}h1{font-size:25px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>November 2026 To-Do List</h1>
+    <p>Simple daily task list</p>
+  </header>
+  <section class="panel">
+    <div class="top">
+      <h2>My Tasks</h2>
+      <button id="refresh" type="button">↻ Refresh</button>
+    </div>
+    <div id="tasks"><div class="empty">Loading tasks from Google Sheets…</div></div>
+    <div id="message" class="message">Your list is connected to Google Sheets.</div>
+  </section>
+</main>
+<script>
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTS1GctseA-gS2pJHBM6zENhx1r1Xl2eYiRkmtGcKtvokQUaqc44HzlBbFH4vARTGTG7Blg3q8mDjG-/pub?output=csv";
+
+function parseCSV(text){
+  const rows=[];let row=[],cell="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(c==='"'&&quoted&&n==='"'){cell+='"';i++;}
+    else if(c==='"')quoted=!quoted;
+    else if(c===','&&!quoted){row.push(cell);cell="";}
+    else if((c==='\n'||c==='\r')&&!quoted){
+      if(c==='\r'&&n==='\n')i++;
+      row.push(cell);if(row.some(v=>v.trim()))rows.push(row);
+      row=[];cell="";
+    }else cell+=c;
+  }
+  row.push(cell);if(row.some(v=>v.trim()))rows.push(row);
+  return rows;
+}
+function normalize(s){return (s||"").trim().toLowerCase().replace(/[\s_-]/g,"");}
+function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function formatDate(value){
+  const s=(value||"").trim();
+  if(!s)return "No date";
+  let m=s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
+  if(m){let y=m[3].length===2?"20"+m[3]:m[3];return `${m[1].padStart(2,"0")}-${m[2].padStart(2,"0")}-${y}`;}
+  const d=new Date(s);
+  if(!isNaN(d))return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"});
+  return s;
+}
+async function loadTasks(){
+  const box=document.getElementById("tasks"),msg=document.getElementById("message");
+  box.innerHTML='<div class="empty">Loading tasks from Google Sheets…</div>';
+  msg.className="message";msg.textContent="Connecting to your sheet…";
+  try{
+    const response=await fetch(SHEET_CSV_URL);
+    if(!response.ok)throw new Error("Google Sheets returned an error. Check the published CSV link.");
+    const rows=parseCSV(await response.text());
+    if(rows.length<2)throw new Error("No task rows found in the sheet.");
+    const headers=rows[0].map(normalize);
+    const dateIndex=headers.findIndex(x=>["date","taskdate","day"].includes(x));
+    const taskIndex=headers.findIndex(x=>["task","tasks","title","activity"].includes(x));
+    if(taskIndex<0)throw new Error('Please keep the column headings as "Date" and "Task".');
+    const items=rows.slice(1).map(r=>({
+      date:formatDate(dateIndex<0?"":r[dateIndex]||""),
+      task:(r[taskIndex]||"").trim()
+    })).filter(x=>x.task);
+    if(!items.length){box.innerHTML='<div class="empty">No tasks added yet. Add tasks in your Google Sheet.</div>';msg.textContent="Sheet connected.";return;}
+    const groups=new Map();
+    items.forEach(item=>{if(!groups.has(item.date))groups.set(item.date,[]);groups.get(item.date).push(item.task);});
+    box.innerHTML=[...groups.entries()].map(([date,tasks])=>
+      `<div class="day"><div class="date">${safe(date)}</div>${tasks.map(task=>`<div class="task">${safe(task)}</div>`).join("")}</div>`
+    ).join("");
+    msg.textContent="✓ Google Sheet connected. Click Refresh after editing your sheet.";
+  }catch(error){
+    box.innerHTML='<div class="empty">Tasks could not be loaded.</div>';
+    msg.className="message error";
+    msg.textContent="Error: "+error.message+" If you opened this file directly, run it using VS Code Live Server or publish it on GitHub Pages.";
+  }
+}
+document.getElementById("refresh").addEventListener("click",loadTasks);
+loadTasks();
+</script>
+</body>
+</html>
