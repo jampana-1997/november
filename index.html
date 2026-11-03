@@ -5,7 +5,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>November 2026 To-Do List</title>
+
 <style>
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   padding: 25px 15px;
@@ -13,87 +16,186 @@ body {
   font-family: Arial, sans-serif;
   color: #182238;
 }
+
 main {
-  max-width: 850px;
+  max-width: 950px;
   margin: auto;
 }
+
 header {
   background: linear-gradient(120deg,#172554,#315efb);
   color: white;
-  padding: 25px;
-  border-radius: 16px;
+  padding: 27px;
+  border-radius: 17px;
   margin-bottom: 20px;
 }
-h1 { margin: 0 0 8px; }
+
+header h1 { margin: 0 0 8px; }
+header p { margin: 0; color: #dce6ff; }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  padding: 19px;
+  border-radius: 14px;
+  border: 1px solid #e7ecf3;
+  box-shadow: 0 5px 18px #1a2a4c08;
+}
+
+.card p {
+  margin: 0 0 10px;
+  color: #718096;
+  font-size: 13px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 29px;
+}
+
+.total h2 { color: #315efb; }
+.completed h2 { color: #16a34a; }
+.pending h2 { color: #ea8b12; }
+.priority1 h2 { color: #dc2626; }
+.priority2 h2 { color: #d97706; }
+.priority3 h2 { color: #2563eb; }
+
 .panel {
   background: white;
   padding: 20px;
   border-radius: 15px;
   overflow-x: auto;
+  border: 1px solid #e7ecf3;
 }
+
 .top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
+
 button {
-  padding: 9px 14px;
+  padding: 10px 16px;
   border: 0;
   border-radius: 8px;
   background: #315efb;
   color: white;
   cursor: pointer;
 }
+
+button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 550px;
+  min-width: 600px;
 }
+
 th, td {
   padding: 13px 10px;
   text-align: center;
   border-bottom: 1px solid #e7ecf3;
 }
+
 th {
   background: #f1f4ff;
   color: #315efb;
 }
-.priority {
-  font-weight: bold;
-}
+
 .status {
-  padding: 6px 10px;
+  display: inline-block;
+  padding: 6px 11px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: bold;
 }
+
 .complete {
   background: #dcfce7;
   color: #15803d;
 }
-.pending {
+
+.waiting {
   background: #fff0d5;
   color: #b45309;
 }
+
 .message {
   margin-top: 15px;
   font-size: 13px;
   color: #718096;
 }
+
+.error { color: #c0392b; }
+
+@media(max-width:600px) {
+  .dashboard { grid-template-columns: repeat(2, 1fr); }
+  header h1 { font-size: 23px; }
+  .card h2 { font-size: 25px; }
+}
 </style>
 </head>
+
 <body>
 <main>
+
 <header>
   <h1>November 2026 To-Do List</h1>
-  <p>My Daily Tasks</p>
+  <p>My Daily Tasks Dashboard</p>
 </header>
 
+<!-- DASHBOARD -->
+<section class="dashboard">
+
+  <div class="card total">
+    <p>Total Tasks</p>
+    <h2 id="total">0</h2>
+  </div>
+
+  <div class="card completed">
+    <p>Completed Tasks</p>
+    <h2 id="completed">0</h2>
+  </div>
+
+  <div class="card pending">
+    <p>Pending Tasks</p>
+    <h2 id="pending">0</h2>
+  </div>
+
+  <div class="card priority1">
+    <p>Priority 1 Tasks</p>
+    <h2 id="p1">0</h2>
+  </div>
+
+  <div class="card priority2">
+    <p>Priority 2 Tasks</p>
+    <h2 id="p2">0</h2>
+  </div>
+
+  <div class="card priority3">
+    <p>Priority 3 Tasks</p>
+    <h2 id="p3">0</h2>
+  </div>
+
+</section>
+
+<!-- TASK TABLE -->
 <section class="panel">
+
   <div class="top">
     <h2>My Tasks</h2>
-    <button onclick="loadTasks()">Refresh</button>
+    <button id="refresh" onclick="loadTasks()">↻ Refresh</button>
   </div>
 
   <table>
@@ -105,111 +207,232 @@ th {
         <th>Status</th>
       </tr>
     </thead>
+
     <tbody id="taskList">
       <tr><td colspan="4">Loading tasks...</td></tr>
     </tbody>
   </table>
-  <div id="message" class="message"></div>
+
+  <div id="message" class="message">
+    Connecting to Google Sheets...
+  </div>
+
 </section>
 </main>
 
 <script>
+
+// GOOGLE SHEET PUBLISHED ID
 const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vTS1GctseA-gS2pJHBM6zENhx1r1Xl2eYiRkmtGcKtvokQUaqc44HzlBbFH4vARTGTG7Blg3q8mDjG-/pub?output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTS1GctseA-gS2pJHBM6zENhx1r1Xl2eYiRkmtGcKtvokQUaqc44HzlBbFH4vARTGTG7Blg3q8mDjG-/gviz/tq?tqx=out:json";
 
-function parseCSV(text) {
-  const rows = [];
-  let row = [], cell = "", quoted = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i], n = text[i + 1];
-
-    if (c === '"' && quoted && n === '"') {
-      cell += '"'; i++;
-    } else if (c === '"') {
-      quoted = !quoted;
-    } else if (c === ',' && !quoted) {
-      row.push(cell); cell = "";
-    } else if ((c === '\n' || c === '\r') && !quoted) {
-      if (c === '\r' && n === '\n') i++;
-      row.push(cell);
-      if (row.some(v => v.trim())) rows.push(row);
-      row = []; cell = "";
-    } else {
-      cell += c;
-    }
-  }
-  row.push(cell);
-  if (row.some(v => v.trim())) rows.push(row);
-  return rows;
-}
-
-function escapeHTML(value) {
+// Escape HTML
+function safe(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;",
-    '"':"&quot;", "'":"&#39;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   })[c]);
 }
 
-async function loadTasks() {
-  const tbody = document.getElementById("taskList");
-  const message = document.getElementById("message");
+// Read Google date values
+function formatDate(cell) {
+  if (!cell) return "";
 
-  tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+  if (cell.f) return cell.f;
 
-  try {
-    const response = await fetch(SHEET_URL);
-    if (!response.ok) throw new Error("Sheet could not be loaded.");
+  const value = cell.v ?? "";
 
-    const rows = parseCSV(await response.text());
-    const headers = rows[0].map(x =>
-      x.trim().toLowerCase().replace(/\s/g, "")
+  if (typeof value === "string") {
+    const match = value.match(
+      /^Date\((\d+),(\d+),(\d+).*\)$/
     );
 
-    const dateIndex = headers.indexOf("date");
-    const taskIndex = headers.indexOf("task");
-    const priorityIndex = headers.indexOf("priority");
-    const statusIndex = headers.indexOf("status");
+    if (match) {
+      const date = new Date(
+        Date.UTC(+match[1], +match[2], +match[3])
+      );
 
-    if ([dateIndex, taskIndex, priorityIndex, statusIndex].includes(-1)) {
-      throw new Error("Please check the four column headings.");
+      return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC"
+      });
     }
-
-    const data = rows.slice(1).filter(row =>
-      (row[taskIndex] || "").trim()
-    );
-
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="4">No tasks found.</td></tr>';
-    } else {
-      tbody.innerHTML = data.map(row => {
-        const status = (row[statusIndex] || "Pending").trim();
-        const isComplete = status.toLowerCase() === "complete";
-
-        return `
-          <tr>
-            <td>${escapeHTML(row[dateIndex])}</td>
-            <td>${escapeHTML(row[taskIndex])}</td>
-            <td class="priority">${escapeHTML(row[priorityIndex])}</td>
-            <td>
-              <span class="status ${isComplete ? "complete" : "pending"}">
-                ${escapeHTML(status)}
-              </span>
-            </td>
-          </tr>`;
-      }).join("");
-    }
-
-    message.textContent = "Google Sheet connected successfully.";
-  } catch (error) {
-    tbody.innerHTML =
-      '<tr><td colspan="4">Unable to load tasks.</td></tr>';
-    message.textContent = error.message +
-      " If CORS blocks the CSV request, use a JSONP or server-side connection.";
   }
+
+  return String(value);
 }
 
+// DASHBOARD UPDATE
+function updateDashboard(tasks) {
+
+  const total = tasks.length;
+
+  const completed = tasks.filter(t =>
+    t.status.toLowerCase() === "complete"
+  ).length;
+
+  const pending = total - completed;
+
+  const p1 = tasks.filter(t => t.priority === "1").length;
+  const p2 = tasks.filter(t => t.priority === "2").length;
+  const p3 = tasks.filter(t => t.priority === "3").length;
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("completed").textContent = completed;
+  document.getElementById("pending").textContent = pending;
+
+  document.getElementById("p1").textContent = p1;
+  document.getElementById("p2").textContent = p2;
+  document.getElementById("p3").textContent = p3;
+}
+
+// RENDER TASKS
+function displayTasks(tasks) {
+
+  const tbody = document.getElementById("taskList");
+
+  if (tasks.length === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="4">No tasks found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = tasks.map(t => {
+
+    const isComplete =
+      t.status.toLowerCase() === "complete";
+
+    return `
+      <tr>
+        <td>${safe(t.date)}</td>
+        <td>${safe(t.task)}</td>
+        <td>${safe(t.priority)}</td>
+        <td>
+          <span class="status ${isComplete ? "complete" : "waiting"}">
+            ${safe(t.status)}
+          </span>
+        </td>
+      </tr>
+    `;
+
+  }).join("");
+}
+
+// GOOGLE SHEETS CALLBACK
+function receiveSheetData(response) {
+
+  const button = document.getElementById("refresh");
+
+  if (!response || response.status !== "ok") {
+    showError("Google Sheet response was not successful.");
+    return;
+  }
+
+  const columns = response.table.cols.map(c =>
+    (c.label || c.id || "").trim().toLowerCase()
+  );
+
+  const dateIndex = columns.indexOf("date");
+  const taskIndex = columns.indexOf("task");
+  const priorityIndex = columns.indexOf("priority");
+  const statusIndex = columns.indexOf("status");
+
+  if ([dateIndex, taskIndex, priorityIndex, statusIndex].includes(-1)) {
+    showError("Check headings: Date, Task, Priority, Status.");
+    return;
+  }
+
+  const tasks = response.table.rows.map(row => {
+
+    const cells = row.c || [];
+
+    function value(index) {
+      const cell = cells[index];
+      return cell ? String(cell.f ?? cell.v ?? "").trim() : "";
+    }
+
+    return {
+      date: formatDate(cells[dateIndex]),
+      task: value(taskIndex),
+      priority: value(priorityIndex),
+      status: value(statusIndex) || "Pending"
+    };
+
+  }).filter(t => t.task);
+
+  updateDashboard(tasks);
+  displayTasks(tasks);
+
+  document.getElementById("message").className = "message";
+  document.getElementById("message").textContent =
+    "✓ Google Sheet connected successfully.";
+
+  button.disabled = false;
+}
+
+// ERROR MESSAGE
+function showError(error) {
+  document.getElementById("taskList").innerHTML =
+    '<tr><td colspan="4">Unable to load tasks.</td></tr>';
+
+  document.getElementById("message").className =
+    "message error";
+
+  document.getElementById("message").textContent = error;
+
+  document.getElementById("refresh").disabled = false;
+}
+
+// LOAD DATA
+let scriptElement;
+
+function loadTasks() {
+
+  const button = document.getElementById("refresh");
+  button.disabled = true;
+
+  document.getElementById("message").className = "message";
+  document.getElementById("message").textContent =
+    "Loading Google Sheet data...";
+
+  if (scriptElement) scriptElement.remove();
+
+  // Google Visualization JSONP callback
+  window.google = {
+    visualization: {
+      Query: {
+        setResponse: receiveSheetData
+      }
+    }
+  };
+
+  scriptElement = document.createElement("script");
+
+  scriptElement.src = SHEET_URL + "&t=" + Date.now();
+
+  scriptElement.onerror = function() {
+    showError(
+      "Could not connect. Check that your Google Sheet is published to the web."
+    );
+  };
+
+  document.head.appendChild(scriptElement);
+
+  setTimeout(() => {
+    if (button.disabled) {
+      showError("Google Sheet response timed out. Please try Refresh.");
+    }
+  }, 15000);
+}
+
+// START
 loadTasks();
+
 </script>
 </body>
 </html>
