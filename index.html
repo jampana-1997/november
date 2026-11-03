@@ -7,142 +7,75 @@
 <title>November 2026 To-Do List</title>
 
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  padding: 25px 15px;
-  background: #f4f6fb;
-  font-family: Arial, sans-serif;
-  color: #182238;
+*{box-sizing:border-box}
+body{
+  margin:0;padding:24px 14px;
+  background:#f4f6fb;
+  font-family:Arial,sans-serif;color:#182238;
 }
-
-main {
-  max-width: 950px;
-  margin: auto;
+main{max-width:950px;margin:auto}
+header{
+  background:linear-gradient(120deg,#172554,#315efb);
+  color:white;padding:26px;border-radius:17px;
+  margin-bottom:18px;
 }
+header h1{margin:0 0 7px;font-size:28px}
+header p{margin:0;color:#dce6ff}
 
-header {
-  background: linear-gradient(120deg,#172554,#315efb);
-  color: white;
-  padding: 27px;
-  border-radius: 17px;
-  margin-bottom: 20px;
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;margin-bottom:18px;
 }
-
-header h1 { margin: 0 0 8px; }
-header p { margin: 0; color: #dce6ff; }
-
-.dashboard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 13px;
-  margin-bottom: 20px;
+.card,.panel{
+  background:white;border:1px solid #e7ecf3;
+  border-radius:14px;
+  box-shadow:0 5px 18px #1a2a4c08;
 }
+.card{padding:17px}
+.card p{margin:0 0 9px;color:#718096;font-size:13px}
+.card h2{margin:0;font-size:28px}
 
-.card {
-  background: white;
-  padding: 19px;
-  border-radius: 14px;
-  border: 1px solid #e7ecf3;
-  box-shadow: 0 5px 18px #1a2a4c08;
+.total h2{color:#315efb}
+.completed h2{color:#16a34a}
+.pending h2{color:#d97706}
+.p1 h2{color:#dc2626}
+.p2 h2{color:#d97706}
+.p3 h2{color:#2563eb}
+
+.panel{padding:19px;overflow-x:auto}
+.top{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;margin-bottom:15px;
 }
-
-.card p {
-  margin: 0 0 10px;
-  color: #718096;
-  font-size: 13px;
+button{
+  border:0;border-radius:8px;
+  background:#315efb;color:white;
+  padding:10px 15px;cursor:pointer;
 }
+button:disabled{opacity:.6;cursor:wait}
 
-.card h2 {
-  margin: 0;
-  font-size: 29px;
+table{width:100%;min-width:590px;border-collapse:collapse}
+th,td{
+  padding:12px 10px;text-align:center;
+  border-bottom:1px solid #e7ecf3;
 }
+th{background:#f1f4ff;color:#315efb}
 
-.total h2 { color: #315efb; }
-.completed h2 { color: #16a34a; }
-.pending h2 { color: #ea8b12; }
-.priority1 h2 { color: #dc2626; }
-.priority2 h2 { color: #d97706; }
-.priority3 h2 { color: #2563eb; }
-
-.panel {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  overflow-x: auto;
-  border: 1px solid #e7ecf3;
+.status{
+  display:inline-block;padding:6px 10px;
+  border-radius:20px;font-size:12px;font-weight:bold;
 }
+.complete{background:#dcfce7;color:#15803d}
+.pending-label{background:#fff0d5;color:#b45309}
 
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
+.message{margin-top:14px;font-size:13px;color:#718096}
+.error{color:#c0392b}
 
-button {
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 8px;
-  background: #315efb;
-  color: white;
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: .6;
-  cursor: wait;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-}
-
-th, td {
-  padding: 13px 10px;
-  text-align: center;
-  border-bottom: 1px solid #e7ecf3;
-}
-
-th {
-  background: #f1f4ff;
-  color: #315efb;
-}
-
-.status {
-  display: inline-block;
-  padding: 6px 11px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.complete {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.waiting {
-  background: #fff0d5;
-  color: #b45309;
-}
-
-.message {
-  margin-top: 15px;
-  font-size: 13px;
-  color: #718096;
-}
-
-.error { color: #c0392b; }
-
-@media(max-width:600px) {
-  .dashboard { grid-template-columns: repeat(2, 1fr); }
-  header h1 { font-size: 23px; }
-  .card h2 { font-size: 25px; }
+@media(max-width:600px){
+  .dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  header h1{font-size:23px}
+  .card h2{font-size:24px}
 }
 </style>
 </head>
@@ -155,7 +88,6 @@ th {
   <p>My Daily Tasks Dashboard</p>
 </header>
 
-<!-- DASHBOARD -->
 <section class="dashboard">
 
   <div class="card total">
@@ -173,29 +105,28 @@ th {
     <h2 id="pending">0</h2>
   </div>
 
-  <div class="card priority1">
+  <div class="card p1">
     <p>Priority 1 Tasks</p>
     <h2 id="p1">0</h2>
   </div>
 
-  <div class="card priority2">
+  <div class="card p2">
     <p>Priority 2 Tasks</p>
     <h2 id="p2">0</h2>
   </div>
 
-  <div class="card priority3">
+  <div class="card p3">
     <p>Priority 3 Tasks</p>
     <h2 id="p3">0</h2>
   </div>
 
 </section>
 
-<!-- TASK TABLE -->
 <section class="panel">
 
   <div class="top">
     <h2>My Tasks</h2>
-    <button id="refresh" onclick="loadTasks()">↻ Refresh</button>
+    <button id="refresh">↻ Refresh</button>
   </div>
 
   <table>
@@ -222,13 +153,18 @@ th {
 
 <script>
 
-// GOOGLE SHEET PUBLISHED ID
-const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vTS1GctseA-gS2pJHBM6zENhx1r1Xl2eYiRkmtGcKtvokQUaqc44HzlBbFH4vARTGTG7Blg3q8mDjG-/pub?output=csv";
+// YOUR GOOGLE SHEET ID
+const SHEET_ID =
+"1QKQutPH0ucbljchhodNG6dSpnypSG9SWiEFEGS49f3w";
 
-// Escape HTML
-function safe(value) {
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
+// Change gid if your task list is in another sheet tab
+const SHEET_URL =
+`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+
+const $ = id => document.getElementById(id);
+
+function safe(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
     "&":"&amp;",
     "<":"&lt;",
     ">":"&gt;",
@@ -237,104 +173,76 @@ function safe(value) {
   })[c]);
 }
 
-// Read Google date values
-function formatDate(cell) {
-  if (!cell) return "";
+function normalize(value){
+  return String(value ?? "")
+    .trim().toLowerCase().replace(/[\s_-]/g,"");
+}
 
-  if (cell.f) return cell.f;
+function formatDate(cell){
+  if(!cell) return "";
+  if(cell.f) return cell.f;
 
-  const value = cell.v ?? "";
+  const value = cell.v;
 
-  if (typeof value === "string") {
+  if(typeof value === "string"){
     const match = value.match(
       /^Date\((\d+),(\d+),(\d+).*\)$/
     );
 
-    if (match) {
-      const date = new Date(
-        Date.UTC(+match[1], +match[2], +match[3])
-      );
+    if(match){
+      const d = new Date(Date.UTC(
+        +match[1],+match[2],+match[3]
+      ));
 
-      return date.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        timeZone: "UTC"
+      return d.toLocaleDateString("en-IN",{
+        day:"2-digit",
+        month:"2-digit",
+        year:"numeric",
+        timeZone:"UTC"
       });
     }
   }
 
-  return String(value);
+  return String(value ?? "");
 }
 
-// DASHBOARD UPDATE
-function updateDashboard(tasks) {
+let scriptElement = null;
+let timer = null;
 
-  const total = tasks.length;
+function showError(message){
 
-  const completed = tasks.filter(t =>
-    t.status.toLowerCase() === "complete"
-  ).length;
+  clearTimeout(timer);
 
-  const pending = total - completed;
-
-  const p1 = tasks.filter(t => t.priority === "1").length;
-  const p2 = tasks.filter(t => t.priority === "2").length;
-  const p3 = tasks.filter(t => t.priority === "3").length;
-
-  document.getElementById("total").textContent = total;
-  document.getElementById("completed").textContent = completed;
-  document.getElementById("pending").textContent = pending;
-
-  document.getElementById("p1").textContent = p1;
-  document.getElementById("p2").textContent = p2;
-  document.getElementById("p3").textContent = p3;
-}
-
-// RENDER TASKS
-function displayTasks(tasks) {
-
-  const tbody = document.getElementById("taskList");
-
-  if (tasks.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="4">No tasks found.</td></tr>';
-    return;
+  if(scriptElement){
+    scriptElement.remove();
+    scriptElement = null;
   }
 
-  tbody.innerHTML = tasks.map(t => {
+  $("taskList").innerHTML =
+    '<tr><td colspan="4">Unable to load tasks.</td></tr>';
 
-    const isComplete =
-      t.status.toLowerCase() === "complete";
-
-    return `
-      <tr>
-        <td>${safe(t.date)}</td>
-        <td>${safe(t.task)}</td>
-        <td>${safe(t.priority)}</td>
-        <td>
-          <span class="status ${isComplete ? "complete" : "waiting"}">
-            ${safe(t.status)}
-          </span>
-        </td>
-      </tr>
-    `;
-
-  }).join("");
+  $("message").className = "message error";
+  $("message").textContent = message;
+  $("refresh").disabled = false;
 }
 
-// GOOGLE SHEETS CALLBACK
-function receiveSheetData(response) {
+// GOOGLE SHEET DATA
+function receiveSheetData(response){
 
-  const button = document.getElementById("refresh");
+  clearTimeout(timer);
 
-  if (!response || response.status !== "ok") {
-    showError("Google Sheet response was not successful.");
+  if(scriptElement){
+    scriptElement.remove();
+    scriptElement = null;
+  }
+
+  if(!response || response.status !== "ok"){
+    showError("Google Sheet returned an error. Check sharing settings.");
     return;
   }
 
   const columns = response.table.cols.map(c =>
-    (c.label || c.id || "").trim().toLowerCase()
+    normalize(c.label || c.id)
   );
 
   const dateIndex = columns.indexOf("date");
@@ -342,8 +250,8 @@ function receiveSheetData(response) {
   const priorityIndex = columns.indexOf("priority");
   const statusIndex = columns.indexOf("status");
 
-  if ([dateIndex, taskIndex, priorityIndex, statusIndex].includes(-1)) {
-    showError("Check headings: Date, Task, Priority, Status.");
+  if([dateIndex,taskIndex,priorityIndex,statusIndex].includes(-1)){
+    showError("Headings must be Date, Task, Priority, Status.");
     return;
   }
 
@@ -351,62 +259,102 @@ function receiveSheetData(response) {
 
     const cells = row.c || [];
 
-    function value(index) {
-      const cell = cells[index];
-      return cell ? String(cell.f ?? cell.v ?? "").trim() : "";
+    function value(index){
+      return cells[index]
+        ? String(cells[index].v ?? "").trim()
+        : "";
     }
 
     return {
-      date: formatDate(cells[dateIndex]),
-      task: value(taskIndex),
-      priority: value(priorityIndex),
-      status: value(statusIndex) || "Pending"
+      date:formatDate(cells[dateIndex]),
+      task:value(taskIndex),
+      priority:value(priorityIndex),
+      status:value(statusIndex) || "Pending"
     };
 
   }).filter(t => t.task);
 
-  updateDashboard(tasks);
-  displayTasks(tasks);
+  // DASHBOARD COUNTS
 
-  document.getElementById("message").className = "message";
-  document.getElementById("message").textContent =
+  const completed = tasks.filter(t =>
+    t.status.toLowerCase() === "complete"
+  ).length;
+
+  const pending = tasks.length - completed;
+
+  const p1 = tasks.filter(t => t.priority === "1").length;
+  const p2 = tasks.filter(t => t.priority === "2").length;
+  const p3 = tasks.filter(t => t.priority === "3").length;
+
+  $("total").textContent = tasks.length;
+  $("completed").textContent = completed;
+  $("pending").textContent = pending;
+
+  $("p1").textContent = p1;
+  $("p2").textContent = p2;
+  $("p3").textContent = p3;
+
+  // DISPLAY TASK TABLE
+
+  if(tasks.length === 0){
+
+    $("taskList").innerHTML =
+      '<tr><td colspan="4">No tasks found.</td></tr>';
+
+  }else{
+
+    $("taskList").innerHTML = tasks.map(t => {
+
+      const done =
+        t.status.toLowerCase() === "complete";
+
+      return `
+        <tr>
+          <td>${safe(t.date)}</td>
+          <td>${safe(t.task)}</td>
+          <td>${safe(t.priority)}</td>
+          <td>
+            <span class="status ${
+              done ? "complete" : "pending-label"
+            }">
+              ${safe(t.status)}
+            </span>
+          </td>
+        </tr>
+      `;
+
+    }).join("");
+  }
+
+  $("message").className = "message";
+  $("message").textContent =
     "✓ Google Sheet connected successfully.";
 
-  button.disabled = false;
+  $("refresh").disabled = false;
 }
 
-// ERROR MESSAGE
-function showError(error) {
-  document.getElementById("taskList").innerHTML =
-    '<tr><td colspan="4">Unable to load tasks.</td></tr>';
+// LOAD GOOGLE SHEET
+function loadTasks(){
 
-  document.getElementById("message").className =
-    "message error";
+  clearTimeout(timer);
 
-  document.getElementById("message").textContent = error;
+  if(scriptElement){
+    scriptElement.remove();
+  }
 
-  document.getElementById("refresh").disabled = false;
-}
+  $("refresh").disabled = true;
 
-// LOAD DATA
-let scriptElement;
+  $("message").className = "message";
+  $("message").textContent = "Loading Google Sheet...";
 
-function loadTasks() {
+  $("taskList").innerHTML =
+    '<tr><td colspan="4">Loading...</td></tr>';
 
-  const button = document.getElementById("refresh");
-  button.disabled = true;
-
-  document.getElementById("message").className = "message";
-  document.getElementById("message").textContent =
-    "Loading Google Sheet data...";
-
-  if (scriptElement) scriptElement.remove();
-
-  // Google Visualization JSONP callback
+  // JSONP callback
   window.google = {
-    visualization: {
-      Query: {
-        setResponse: receiveSheetData
+    visualization:{
+      Query:{
+        setResponse:receiveSheetData
       }
     }
   };
@@ -415,22 +363,23 @@ function loadTasks() {
 
   scriptElement.src = SHEET_URL + "&t=" + Date.now();
 
-  scriptElement.onerror = function() {
+  scriptElement.onerror = function(){
     showError(
-      "Could not connect. Check that your Google Sheet is published to the web."
+      "Could not connect. Check Sheet ID and sharing permission: Anyone with the link - Viewer."
     );
   };
 
   document.head.appendChild(scriptElement);
 
-  setTimeout(() => {
-    if (button.disabled) {
-      showError("Google Sheet response timed out. Please try Refresh.");
-    }
-  }, 15000);
+  timer = setTimeout(function(){
+    showError(
+      "Google Sheets did not respond. Check Sheet ID, tab and sharing settings."
+    );
+  },15000);
 }
 
-// START
+$("refresh").addEventListener("click",loadTasks);
+
 loadTasks();
 
 </script>
