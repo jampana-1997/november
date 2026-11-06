@@ -1,0 +1,928 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>November 2026 To-Do List</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px 14px;
+    background: #f4f6fb;
+    font-family: Arial, sans-serif;
+    color: #182238;
+}
+
+main {
+    max-width: 950px;
+    margin: auto;
+}
+
+header {
+    background: linear-gradient(120deg,#172554,#315efb);
+    color: white;
+    padding: 26px;
+    border-radius: 17px;
+    margin-bottom: 18px;
+}
+
+header h1 {
+    margin: 0 0 7px;
+    font-size: 28px;
+}
+
+header p {
+    margin: 0;
+    color: #dce6ff;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.card,.panel {
+    background: white;
+    border: 1px solid #e7ecf3;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px #1a2a4c08;
+}
+
+.card {
+    padding: 17px;
+}
+
+.card p {
+    margin: 0 0 9px;
+    color: #718096;
+    font-size: 13px;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.total h2 { color: #315efb; }
+.completed h2 { color: #16a34a; }
+.pending h2 { color: #d97706; }
+.p1 h2 { color: #dc2626; }
+.p2 h2 { color: #d97706; }
+.p3 h2 { color: #2563eb; }
+.today h2 { color: #7c3aed; }
+.overdue h2 { color: #dc2626; }
+@media print {
+    body { background: white !important; color: #111 !important; }
+    .header-actions, .tools-row, #refresh { display: none !important; }
+    .card, .panel, .report-box { box-shadow: none !important; break-inside: avoid; }
+    .panel { overflow: visible; }
+    table { min-width: 100%; }
+}
+.live-clock h2 {
+    color: #0891b2;
+    font-size: 22px;
+    white-space: nowrap;
+}
+.live-clock small {
+    display: block;
+    margin-top: 7px;
+    color: #718096;
+    font-size: 12px;
+}
+
+.panel {
+    padding: 19px;
+    overflow-x: auto;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+button {
+    border: 0;
+    border-radius: 8px;
+    background: #315efb;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+table {
+    width: 100%;
+    min-width: 590px;
+    border-collapse: collapse;
+}
+
+th,td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #e7ecf3;
+}
+
+th {
+    background: #f1f4ff;
+    color: #315efb;
+}
+
+.filter-row th {
+    background: white;
+    padding: 8px;
+}
+
+.filter-row input,
+.filter-row select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #dce3ef;
+    border-radius: 7px;
+    font-size: 12px;
+    outline: none;
+}
+
+.filter-row input:focus,
+.filter-row select:focus {
+    border-color: #315efb;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.complete {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.pending-label {
+    background: #fff0d5;
+    color: #b45309;
+}
+
+.message {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #718096;
+}
+
+.error {
+    color: #c0392b;
+}
+
+@media(max-width:600px) {
+    .dashboard {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    header h1 {
+        font-size: 23px;
+    }
+
+    .card h2 {
+        font-size: 24px;
+    }
+}
+
+/* Additional dashboard features */
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+.header-actions button {
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.45);
+}
+.tools-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 16px;
+}
+.tools-row button { background: #172554; }
+.tools-row .secondary { background: #64748b; }
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 12px;
+    margin: 0 0 16px;
+}
+.report-box {
+    background: white;
+    border: 1px solid #e7ecf3;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 5px 18px #1a2a4c08;
+}
+.report-box h3 { margin: 0 0 12px; font-size: 16px; }
+.report-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #edf0f5;
+    font-size: 14px;
+}
+.report-line:last-child { border-bottom: 0; }
+.progress-track {
+    height: 13px;
+    background: #e8edf5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 10px 0 7px;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,#16a34a,#4ade80);
+    border-radius: 20px;
+    transition: width .25s ease;
+}
+.progress-caption { color: #718096; font-size: 12px; }
+.quote-box {
+    margin: 0 0 16px;
+    padding: 15px 18px;
+    background: #eef2ff;
+    border-left: 4px solid #315efb;
+    border-radius: 10px;
+    color: #243b72;
+    font-style: italic;
+}
+body.dark {
+    background: #0f172a;
+    color: #e5e7eb;
+}
+body.dark .card, body.dark .panel, body.dark .report-box {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e5e7eb;
+}
+body.dark .card p, body.dark .live-clock small,
+body.dark .progress-caption { color: #aab7ca; }
+body.dark th { background: #263449; color: #bfccff; }
+body.dark .filter-row th { background: #1e293b; }
+body.dark .filter-row input, body.dark .filter-row select {
+    background: #0f172a; color: #e5e7eb; border-color: #475569;
+}
+body.dark td, body.dark .report-line { border-color: #334155; }
+body.dark .quote-box { background: #202f54; color: #dbeafe; }
+body.dark .progress-track { background: #334155; }
+@media(max-width:600px) {
+    .report-grid { grid-template-columns: 1fr; }
+    .header-actions { justify-content: flex-start; }
+}
+
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+    <h1>November 2026 To-Do List</h1>
+    <p>My Daily Tasks Dashboard</p>
+    <div class="header-actions">
+        <button id="themeToggle" type="button">🌙 Dark Mode</button>
+    </div>
+</header>
+
+<section class="dashboard">
+
+    <div class="card total">
+        <p>Total Tasks</p>
+        <h2 id="total">0</h2>
+    </div>
+
+    <div class="card completed">
+        <p>Completed Tasks</p>
+        <h2 id="completed">0</h2>
+    </div>
+
+    <div class="card pending">
+        <p>Pending Tasks</p>
+        <h2 id="pending">0</h2>
+    </div>
+
+    <div class="card p1">
+        <p>Priority 1 Tasks</p>
+        <h2 id="p1">0</h2>
+    </div>
+
+    <div class="card p2">
+        <p>Priority 2 Tasks</p>
+        <h2 id="p2">0</h2>
+    </div>
+
+    <div class="card p3">
+        <p>Priority 3 Tasks</p>
+        <h2 id="p3">0</h2>
+    </div>
+
+    <div class="card today">
+        <p>Today Tasks</p>
+        <h2 id="today">0</h2>
+    </div>
+
+    <div class="card overdue">
+        <p>Overdue Tasks</p>
+        <h2 id="overdue">0</h2>
+    </div>
+
+    <div class="card live-clock">
+        <p>Live Date &amp; Time</p>
+        <h2 id="liveTime">--:--:--</h2>
+        <small id="liveDate">Loading date...</small>
+    </div>
+
+</section>
+
+<section class="report-grid">
+    <div class="report-box">
+        <h3>Weekly Task Summary</h3>
+        <div class="report-line"><span>This week tasks</span><strong id="weekTotal">0</strong></div>
+        <div class="report-line"><span>Completed</span><strong id="weekCompleted">0</strong></div>
+        <div class="report-line"><span>Pending</span><strong id="weekPending">0</strong></div>
+    </div>
+    <div class="report-box">
+        <h3>Monthly Task Report</h3>
+        <div class="report-line"><span>This month tasks</span><strong id="monthTotal">0</strong></div>
+        <div class="report-line"><span>Completed</span><strong id="monthCompleted">0</strong></div>
+        <div class="report-line"><span>Pending</span><strong id="monthPending">0</strong></div>
+    </div>
+    <div class="report-box">
+        <h3>Today's Progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-caption" id="progressText">0 of 0 tasks completed (0%)</div>
+    </div>
+    <div class="report-box">
+        <h3>Quick Actions</h3>
+        <div class="tools-row">
+            <button id="exportExcel" type="button">⬇ Export Excel</button>
+            <button id="exportPDF" class="secondary" type="button">🖨 Export PDF</button>
+        </div>
+        <div class="progress-caption">Excel opens as a spreadsheet. PDF uses your browser's Print / Save as PDF option.</div>
+    </div>
+</section>
+
+<div class="quote-box" id="dailyQuote">“Small steps every day lead to big results.”</div>
+
+<section class="panel">
+
+    <div class="top">
+        <h2>My Tasks</h2>
+        <button id="refresh">↻ Refresh</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Task</th>
+                <th>Priority</th>
+                <th>Status</th>
+            </tr>
+
+            <tr class="filter-row">
+                <th>
+                    <input type="text" id="filterDate"
+                    placeholder="Search Date">
+                </th>
+
+                <th>
+                    <input type="text" id="filterTask"
+                    placeholder="Search Task">
+                </th>
+
+                <th>
+                    <select id="filterPriority">
+                        <option value="">All</option>
+                        <option value="1">Priority 1</option>
+                        <option value="2">Priority 2</option>
+                        <option value="3">Priority 3</option>
+                    </select>
+                </th>
+
+                <th>
+                    <select id="filterStatus">
+                        <option value="">All</option>
+                        <option value="Complete">Complete</option>
+                        <option value="Pending">Pending</option>
+                         <option value="Today">Today</option>
+                    </select>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody id="taskList">
+            <tr>
+                <td colspan="4">Loading tasks...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="message" class="message">
+        Connecting to Google Sheets...
+    </div>
+
+</section>
+</main>
+
+<script>
+
+// GOOGLE SHEET ID
+const SHEET_ID =
+"1QKQutPH0ucbljchhodNG6dSpnypSG9SWiEFEGS49f3w";
+
+// SHEET URL
+const SHEET_URL =
+`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+
+const $ = id => document.getElementById(id);
+
+let scriptElement = null;
+let timer = null;
+let allTasks = [];
+
+function safe(value) {
+    return String(value ?? "").replace(/[&<>"']/g,c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[c]);
+}
+
+function normalize(value) {
+    return String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]/g,"");
+}
+
+function formatDate(cell) {
+    if (!cell) return "";
+
+    if (cell.f) return cell.f;
+
+    const value = cell.v;
+
+    if (typeof value === "string") {
+        const match = value.match(
+            /^Date\((\d+),(\d+),(\d+).*\)$/
+        );
+
+        if (match) {
+            const d = new Date(Date.UTC(
+                +match[1],+match[2],+match[3]
+            ));
+
+            return d.toLocaleDateString("en-IN",{
+                day:"2-digit",
+                month:"2-digit",
+                year:"numeric",
+                timeZone:"UTC"
+            });
+        }
+    }
+
+    return String(value ?? "");
+}
+
+// ERROR MESSAGE
+function showError(message) {
+    clearTimeout(timer);
+
+    if (scriptElement) {
+        scriptElement.remove();
+        scriptElement = null;
+    }
+
+    $("taskList").innerHTML =
+        '<tr><td colspan="4">Unable to load tasks.</td></tr>';
+
+    $("message").className = "message error";
+    $("message").textContent = message;
+    $("refresh").disabled = false;
+}
+
+// DISPLAY TASKS
+function displayTasks(tasks) {
+
+    if (tasks.length === 0) {
+        $("taskList").innerHTML =
+            '<tr><td colspan="4">No tasks found.</td></tr>';
+        return;
+    }
+
+    $("taskList").innerHTML = tasks.map(t => {
+
+        const done =
+            t.status.toLowerCase() === "complete";
+
+        return `
+            <tr>
+                <td>${safe(t.date)}</td>
+                <td>${safe(t.task)}</td>
+                <td>${safe(t.priority)}</td>
+                <td>
+                    <span class="status ${
+                        done ? "complete" : "pending-label"
+                    }">
+                        ${safe(t.status)}
+                    </span>
+                </td>
+            </tr>
+        `;
+
+    }).join("");
+}
+
+// Convert supported sheet date formats into a local Date object.
+function getTaskDate(taskDate, rawDate) {
+    if (rawDate instanceof Date && !Number.isNaN(rawDate.getTime())) {
+        return new Date(rawDate.getFullYear(), rawDate.getMonth(), rawDate.getDate());
+    }
+    const raw = String(rawDate ?? "");
+    let m = raw.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
+    if (m) return new Date(Number(m[1]), Number(m[2]), Number(m[3]));
+
+    const value = String(taskDate || raw).trim();
+    m = value.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+    if (m) return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+
+    m = value.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+    if (m) return new Date(Number(m[3]), Number(m[2])-1, Number(m[1]));
+
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+        return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    }
+    return null;
+}
+
+function sameDay(a, b) {
+    return !!a && !!b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+}
+
+// FILTER TASKS
+function isToday(taskDate, rawDate) {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = today.getMonth() + 1;
+    const d = today.getDate();
+
+    // Google Sheets GViz raw date format: Date(2026,10,6)
+    const gviz = String(rawDate ?? "").match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
+    if (gviz) {
+        return Number(gviz[1]) === y &&
+               Number(gviz[2]) + 1 === m &&
+               Number(gviz[3]) === d;
+    }
+
+    // If the raw value is a JavaScript Date, compare its local date.
+    if (rawDate instanceof Date && !Number.isNaN(rawDate.getTime())) {
+        return rawDate.getFullYear() === y &&
+               rawDate.getMonth() === today.getMonth() &&
+               rawDate.getDate() === d;
+    }
+
+    const value = String(taskDate || "").trim();
+
+    // ISO format: YYYY-MM-DD or YYYY/MM/DD.
+    let match = value.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+    if (match) {
+        return Number(match[1]) === y &&
+               Number(match[2]) === m &&
+               Number(match[3]) === d;
+    }
+
+    // Indian display format: DD/MM/YYYY.
+    match = value.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+    if (match) {
+        const a = Number(match[1]);
+        const b = Number(match[2]);
+        const year = Number(match[3]);
+
+        // Accept either DD/MM/YYYY or MM/DD/YYYY because Sheets may
+        // return a US-formatted display string.
+        return year === y && (
+            (a === d && b === m) ||
+            (a === m && b === d)
+        );
+    }
+
+    // Text dates such as "Nov 6, 2026".
+    const parsed = new Date(value);
+    return !Number.isNaN(parsed.getTime()) &&
+           parsed.getFullYear() === y &&
+           parsed.getMonth() === today.getMonth() &&
+           parsed.getDate() === d;
+}
+
+function filterTasks() {
+
+    const date =
+        $("filterDate").value.toLowerCase().trim();
+
+    const task =
+        $("filterTask").value.toLowerCase().trim();
+
+    const priority =
+        $("filterPriority").value;
+
+    const status =
+        $("filterStatus").value.toLowerCase();
+
+
+
+    const filtered = allTasks.filter(t =>
+
+        t.date.toLowerCase().includes(date) &&
+
+        t.task.toLowerCase().includes(task) &&
+
+        (!priority || t.priority === priority) &&
+
+        (!status ||
+            (status === "today" ? isToday(t.date, t.rawDate) :
+             t.status.toLowerCase() === status))
+
+    );
+
+    displayTasks(filtered);
+}
+
+// FILTER EVENTS
+["filterDate","filterTask","filterPriority","filterStatus"]
+.forEach(id => {
+
+    $(id).addEventListener("input",filterTasks);
+    $(id).addEventListener("change",filterTasks);
+
+});
+
+
+function updateReports(tasks) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Monday-start current week.
+    const weekStart = new Date(today);
+    const dayOffset = (today.getDay() + 6) % 7;
+    weekStart.setDate(today.getDate() - dayOffset);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+
+    const dated = tasks.map(t => ({...t, parsedDate: getTaskDate(t.date, t.rawDate)}));
+    const weekly = dated.filter(t => t.parsedDate && t.parsedDate >= weekStart && t.parsedDate < weekEnd);
+    const monthly = dated.filter(t => t.parsedDate &&
+        t.parsedDate.getFullYear() === today.getFullYear() &&
+        t.parsedDate.getMonth() === today.getMonth());
+    const completed = t => t.status.toLowerCase() === "complete";
+
+    $("weekTotal").textContent = weekly.length;
+    $("weekCompleted").textContent = weekly.filter(completed).length;
+    $("weekPending").textContent = weekly.filter(t => !completed(t)).length;
+
+    $("monthTotal").textContent = monthly.length;
+    $("monthCompleted").textContent = monthly.filter(completed).length;
+    $("monthPending").textContent = monthly.filter(t => !completed(t)).length;
+
+    const todayTasks = dated.filter(t => sameDay(t.parsedDate, today));
+    const todayDone = todayTasks.filter(completed).length;
+    const percent = todayTasks.length ? Math.round(todayDone / todayTasks.length * 100) : 0;
+    $("progressFill").style.width = percent + "%";
+    $("progressText").textContent = `${todayDone} of ${todayTasks.length} tasks completed (${percent}%)`;
+
+    const overdue = dated.filter(t => t.parsedDate && t.parsedDate < today && !completed(t)).length;
+    $("overdue").textContent = overdue;
+}
+
+function exportExcel() {
+    if (!allTasks.length) {
+        alert("No task data available to export.");
+        return;
+    }
+    const rows = [["Date", "Task", "Priority", "Status"], ...allTasks.map(t => [t.date, t.task, t.priority, t.status])];
+    const csv = rows.map(row => row.map(value => '"' + String(value ?? "").replace(/"/g, '""') + '"').join(",")).join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Jagadeesh_Todo_Tasks.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+function exportPDF() {
+    window.print();
+}
+
+const quotes = [
+    "Small steps every day lead to big results.",
+    "Discipline is choosing what matters most over what feels easy.",
+    "Your future is created by what you do today.",
+    "Consistency turns ordinary effort into extraordinary results.",
+    "One completed task is progress. Keep moving forward."
+];
+$("dailyQuote").textContent = "“" + quotes[new Date().getDate() % quotes.length] + "”";
+
+$("exportExcel").addEventListener("click", exportExcel);
+$("exportPDF").addEventListener("click", exportPDF);
+
+$("themeToggle").addEventListener("click", function() {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    this.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+});
+
+
+// RECEIVE GOOGLE SHEET DATA
+function receiveSheetData(response) {
+
+    clearTimeout(timer);
+
+    if (scriptElement) {
+        scriptElement.remove();
+        scriptElement = null;
+    }
+
+    if (!response || response.status !== "ok") {
+        showError("Google Sheet returned an error. Check sharing settings.");
+        return;
+    }
+
+    const columns = response.table.cols.map(c =>
+        normalize(c.label || c.id)
+    );
+
+    const dateIndex = columns.indexOf("date");
+    const taskIndex = columns.indexOf("task");
+    const priorityIndex = columns.indexOf("priority");
+    const statusIndex = columns.indexOf("status");
+
+    if ([dateIndex,taskIndex,priorityIndex,statusIndex].includes(-1)) {
+        showError("Headings must be Date, Task, Priority, Status.");
+        return;
+    }
+
+    const tasks = response.table.rows.map(row => {
+
+        const cells = row.c || [];
+
+        function value(index) {
+            return cells[index]
+                ? String(cells[index].v ?? "").trim()
+                : "";
+        }
+
+        return {
+            date:formatDate(cells[dateIndex]),
+            rawDate: cells[dateIndex] ? cells[dateIndex].v : "",
+            task:value(taskIndex),
+            priority:value(priorityIndex),
+            status:value(statusIndex) || "Pending"
+        };
+
+    }).filter(t => t.task);
+
+    allTasks = tasks;
+
+    // DASHBOARD COUNTS
+    const completed = tasks.filter(t =>
+        t.status.toLowerCase() === "complete"
+    ).length;
+
+    const pending = tasks.length - completed;
+
+    const p1 = tasks.filter(t => t.priority === "1").length;
+    const p2 = tasks.filter(t => t.priority === "2").length;
+    const p3 = tasks.filter(t => t.priority === "3").length;
+    const todayCount = tasks.filter(t => isToday(t.date, t.rawDate)).length;
+
+    $("total").textContent = tasks.length;
+    $("completed").textContent = completed;
+    $("pending").textContent = pending;
+
+    $("p1").textContent = p1;
+    $("p2").textContent = p2;
+    $("p3").textContent = p3;
+    $("today").textContent = todayCount;
+    updateReports(tasks);
+
+    // DISPLAY FILTERED TASKS
+    filterTasks();
+
+    $("message").className = "message";
+    $("message").textContent =
+        "✓ Google Sheet connected successfully.";
+
+    $("refresh").disabled = false;
+}
+
+// LOAD GOOGLE SHEET
+function loadTasks() {
+
+    clearTimeout(timer);
+
+    if (scriptElement) {
+        scriptElement.remove();
+        scriptElement = null;
+    }
+
+    $("refresh").disabled = true;
+
+    $("message").className = "message";
+    $("message").textContent = "Loading Google Sheet...";
+
+    $("taskList").innerHTML =
+        '<tr><td colspan="4">Loading...</td></tr>';
+
+    window.google = {
+        visualization: {
+            Query: {
+                setResponse:receiveSheetData
+            }
+        }
+    };
+
+    scriptElement = document.createElement("script");
+
+    scriptElement.src = SHEET_URL + "&t=" + Date.now();
+
+    scriptElement.onerror = function() {
+        showError(
+            "Could not connect. Check Sheet ID and sharing permission: Anyone with the link - Viewer."
+        );
+    };
+
+    document.head.appendChild(scriptElement);
+
+    timer = setTimeout(function() {
+        showError(
+            "Google Sheets did not respond. Check Sheet ID, tab and sharing settings."
+        );
+    },15000);
+}
+
+// REFRESH BUTTON
+$("refresh").addEventListener("click",loadTasks);
+
+// LIVE DATE & TIME (India Standard Time)
+function updateLiveClock() {
+    const now = new Date();
+
+    $("liveTime").textContent = new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+    }).format(now);
+
+    $("liveDate").textContent = new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        weekday: "long",
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    }).format(now);
+}
+
+updateLiveClock();
+setInterval(updateLiveClock, 1000);
+
+// INITIAL LOAD
+loadTasks();
+
+</script>
+
+</body>
+</html>
